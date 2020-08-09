@@ -1,14 +1,14 @@
 import os
-import questions_handlers
-from dialog_bot import QuizDialogBot
+import quiz_tools
+from quiz_dialogs import QuizDialogsBot
 
 
 def main():
-    readed_questions = questions_handlers.read_questions()
-    bot = QuizDialogBot(
+
+    bot = QuizDialogsBot(
         os.getenv('TG_ACCESS_TOKEN'),
         os.getenv('DIALOGFLOW_PROJECT_ID'),
-        quiz_questions=readed_questions,
+        quiz_questions=quiz_tools.read_questions(),
         redis_host=os.getenv('REDIS_HOST'),
         redis_port=os.getenv('REDIS_PORT'),
         redis_pass=os.getenv('REDIS_PASSWORD')
