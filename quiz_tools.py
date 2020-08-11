@@ -18,21 +18,19 @@ def get_vk_keyboard():
 
 def get_answer(quiz_lib, question):
     answer = quiz_lib.get(question)
-    return re.sub(r'[\.|\(].*$', '', answer).strip()
+    return (answer if answer else '')
 
 
 def remove_waste_letters(text):
-    return re.sub(r'\n+|\r', ' ', text).strip()
+    return re.sub(r'\n+|\r|\(', ' ', text).strip()
 
 
 def get_quiz_lib(quiz_text):
     quiz_lib = {}
     for quiz_question in re.split(r'Вопрос[\s][0-9]+\s?:\n', quiz_text):
         regex_object = re.compile(r'''
-            (.*)(\nОтвет:\n?)           #все символы с начала строки до слова "Ответ:", ограниченным одним или несколькими переносами строк
-            (.*)(\nКомментарий:.*\n+)?  #все символы после предыдущей группы, до и после слова "Комментарий:", если оно присутствует в тексте
-            (\nИсточник:.*\n+)          #все символы после слова "Источник:", включая один или несколько переносов строки
-            (\nАвтор:.*\n+)             #все символы после слова "Автор:", включая один или несколько переносов строки
+            ^(.*)(Ответ:)               #все символы с начала строки до слова "Ответ:"
+            (.*?[\.|\(])                #все символы до первой точки или открывающейся скобки
         ''', re.DOTALL | re.VERBOSE)
         question_and_answer = regex_object.findall(quiz_question)
         if question_and_answer:
@@ -47,5 +45,4 @@ def read_questions(quiz_folder):
         with open(file, 'r', encoding='KOI8-R') as file_handler:
             quiz_text = file_handler.read()
             readed_questions.update(get_quiz_lib(quiz_text))
-            break
     return readed_questions

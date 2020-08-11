@@ -42,7 +42,7 @@ class VkQuizBot(object):
             elif event.text == 'Сдаться':
                 question = self.redis_conn.get(event.user_id)
                 correct_answer = get_answer(self.quiz_questions, question.decode())
-                message = f'Вот тебе правильный ответ: {correct_answer}.\nДля продолжения нажмите "Новый вопрос"'
+                message = f'Вот тебе правильный ответ: {correct_answer}\nДля продолжения нажмите "Новый вопрос"'
                 self.send_message(event.user_id, message)
 
             else:

@@ -63,7 +63,7 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     initialize_logger(args.log)
-    all_quizzes = (not args.tg_quiz or not args.vk_quiz)
+    all_quizzes = not args.tg_quiz and not args.vk_quiz
     try:
         quiz_questions = quiz_tools.read_questions(args.quiz_folder)
 

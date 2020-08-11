@@ -74,7 +74,7 @@ class TgQuizBot(object):
         session_id = update.message.chat_id
         question = self.redis_conn.get(session_id)
         correct_answer = get_answer(self.quiz_questions, question.decode())
-        update.message.reply_text(f'Вот тебе правильный ответ: {correct_answer}.\nДля продолжения нажмите "Новый вопрос"')
+        update.message.reply_text(f'Вот тебе правильный ответ: {correct_answer}\nДля продолжения нажмите "Новый вопрос"')
         return 'new_question'
 
     def handle_uncorrect_input(self, bot, update):
