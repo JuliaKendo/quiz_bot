@@ -6,8 +6,8 @@ import requests
 import quiz_tools
 import logger_tools
 from dotenv import load_dotenv
-from tg_quiz_dialogs import TgQuizBot
-from vk_quiz_dialogs import VkQuizBot
+from tg_quiz import TgQuizBot
+from vk_quiz import VkQuizBot
 from vk_api import VkApiError, ApiHttpError, AuthError
 
 logger = logging.getLogger('quize_bot')
