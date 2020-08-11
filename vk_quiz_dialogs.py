@@ -24,12 +24,12 @@ class VkQuizBot(object):
 
     def handle_message(self, event):
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            if event.text == '/start':
-                message = 'Приветствую!\n Нажмите "Новый вопрос" для начала викторины или "/cancel" для отмены.'
+            if event.text == 'Привет':
+                message = 'Приветствую!\n Нажмите "Новый вопрос" для начала викторины или "Завершить" для отмены.'
                 self.send_message(event.user_id, message, get_vk_keyboard())
                 return
 
-            if event.text == '/cancel':
+            if event.text == 'Завершить':
                 empty_keyboard = VkKeyboard.get_empty_keyboard()
                 self.send_message(event.user_id, 'Викторина завершена!', empty_keyboard)
                 return
@@ -49,7 +49,7 @@ class VkQuizBot(object):
                 question = self.redis_conn.get(event.user_id)
                 correct_answer = get_answer(self.quiz_questions, question.decode())
                 if event.text.upper() in correct_answer.upper():
-                    message = 'Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
+                    message = 'Правильно! Поздравляю! Для следующего вопроса нажми "Новый вопрос"'
                 else:
                     message = 'Неправильно... Попробуешь ещё раз?'
                 self.send_message(event.user_id, message)

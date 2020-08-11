@@ -5,10 +5,9 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Filters, MessageHandler, CommandHandler, Updater, ConversationHandler
 
 
-class TgQuizBot():
-    def __init__(self, token, project_id, **kwargs):
+class TgQuizBot(object):
+    def __init__(self, token, **kwargs):
         self.updater = Updater(token=token)
-        self.project_id = project_id
         handler = ConversationHandler(
             entry_points=[CommandHandler('start', self.start_quiz)],
             states={
@@ -17,8 +16,13 @@ class TgQuizBot():
                     MessageHandler(Filters.regex('Сдаться'), self.handle_correct_answer)
                 ],
                 'check_reply': [
-                    MessageHandler(Filters.text & (~Filters.regex('Сдаться')), self.handle_solution_attempt),
-                    MessageHandler(Filters.regex('Сдаться'), self.handle_correct_answer)
+                    MessageHandler(Filters.regex('Новый вопрос'), self.handle_new_question_request),
+                    MessageHandler(Filters.regex('Сдаться'), self.handle_correct_answer),
+                    MessageHandler(
+                        Filters.text & (~Filters.regex('Новый вопрос') | ~Filters.regex('Сдаться')),
+                        self.handle_solution_attempt
+                    ),
+                    MessageHandler(~Filters.text, self.handle_uncorrect_input)
                 ]
             },
             fallbacks=[CommandHandler('cancel', self.end_quiz)]
@@ -56,16 +60,21 @@ class TgQuizBot():
         question = self.redis_conn.get(session_id)
         correct_answer = get_answer(self.quiz_questions, question.decode())
         if update.message.text.upper() in correct_answer.upper():
-            update.message.reply_text('Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»')
+            update.message.reply_text('Правильно! Поздравляю! Для следующего вопроса нажми "Новый вопрос"')
+            return 'new_question'
         else:
             update.message.reply_text('Неправильно... Попробуешь ещё раз?')
-        return 'new_question'
+            return 'check_reply'
 
     def handle_correct_answer(self, bot, update):
         session_id = update.message.chat_id
         question = self.redis_conn.get(session_id)
         correct_answer = get_answer(self.quiz_questions, question.decode())
         update.message.reply_text(f'Вот тебе правильный ответ: {correct_answer}.\nДля продолжения нажмите "Новый вопрос"')
+        return 'new_question'
+
+    def handle_uncorrect_input(self, bot, update):
+        update.message.reply_text('Непонимаю.\nНажмите "Новый вопрос" для продолжения или "/cancel" для отмены.')
         return 'new_question'
 
     def end_quiz(self, bot, update):
