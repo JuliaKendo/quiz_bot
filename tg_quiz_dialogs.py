@@ -1,8 +1,11 @@
 import redis
 import random
+import logging
 from quiz_tools import get_answer
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Filters, MessageHandler, CommandHandler, Updater, ConversationHandler
+
+logger = logging.getLogger('quize_bot')
 
 
 class TgQuizBot(object):
@@ -39,6 +42,7 @@ class TgQuizBot(object):
         self.updater.start_polling()
 
     def error(self, bot, update, error):
+        logger.exception(f'Ошибка tg бота: {error}')
         return ConversationHandler.END
 
     def start_quiz(self, bot, update):

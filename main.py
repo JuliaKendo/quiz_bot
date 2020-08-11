@@ -1,8 +1,8 @@
 import os
 import logging
 import telegram
-import quiz_tools
 import requests
+import quiz_tools
 from dotenv import load_dotenv
 from tg_quiz_dialogs import TgQuizBot
 from vk_quiz_dialogs import VkQuizBot
