@@ -4,6 +4,7 @@ import argparse
 import telegram
 import requests
 import quiz_tools
+import logger_tools
 from dotenv import load_dotenv
 from tg_quiz_dialogs import TgQuizBot
 from vk_quiz_dialogs import VkQuizBot
@@ -12,25 +13,10 @@ from vk_api import VkApiError, ApiHttpError, AuthError
 logger = logging.getLogger('quize_bot')
 
 
-def initialize_logger(log_path=None):
-    if log_path:
-        output_dir = log_path
-    else:
-        output_dir = os.path.dirname(os.path.realpath(__file__))
-    logger.setLevel(logging.DEBUG)
-    handler = logging.FileHandler(os.path.join(output_dir, 'log.txt'), "a")
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-
 def create_parser():
     parser = argparse.ArgumentParser(description='Параметры запуска скрипта')
-    parser.add_argument('-t', '--tg_quiz', action='store_true', help='Викторина в telegram')
-    parser.add_argument('-v', '--vk_quiz', action='store_true', help='Викторина в ВКонтакте')
+    parser.add_argument('-q', '--quiz', choices=['tg', 'vk'], required=True, help='Викторина в telegram (tg) или ВКонтакте (vk)')
     parser.add_argument('-f', '--quiz_folder', default='quiz-questions', help='Путь к каталогу с текстовыми файлами вопросов для викторины')
-    parser.add_argument('-l', '--log', help='Путь к каталогу с log файлом')
 
     return parser
 
@@ -62,12 +48,17 @@ def main():
     load_dotenv()
     parser = create_parser()
     args = parser.parse_args()
-    initialize_logger(args.log)
-    all_quizzes = not args.tg_quiz and not args.vk_quiz
+    logger_tools.initialize_logger(
+        logger,
+        os.getenv('TG_LOG_TOKEN'),
+        os.getenv('TG_CHAT_ID')
+    )
+
     try:
         quiz_questions = quiz_tools.read_questions(args.quiz_folder)
 
-        if args.tg_quiz or all_quizzes:
+        if args.quiz == 'tg':
+            logger.info('telegram quiz bot launched')
             try:
                 launch_tg_bot(quiz_questions)
             except (
@@ -76,7 +67,8 @@ def main():
             ) as error:
                 logger.exception(f'Ошибка telegram бота: {error}')
 
-        if args.vk_quiz or all_quizzes:
+        if args.quiz == 'vk':
+            logger.info('vk quiz bot launched')
             try:
                 launch_vk_bot(quiz_questions)
             except (
