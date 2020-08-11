@@ -29,6 +29,7 @@ def create_parser():
     parser = argparse.ArgumentParser(description='Параметры запуска скрипта')
     parser.add_argument('-t', '--tg_quiz', action='store_true', help='Викторина в telegram')
     parser.add_argument('-v', '--vk_quiz', action='store_true', help='Викторина в ВКонтакте')
+    parser.add_argument('-f', '--quiz_folder', default='quiz-questions', help='Путь к каталогу с текстовыми файлами вопросов для викторины')
     parser.add_argument('-l', '--log', help='Путь к каталогу с log файлом')
 
     return parser
@@ -62,11 +63,11 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     initialize_logger(args.log)
-
+    all_quizzes = (not args.tg_quiz or not args.vk_quiz)
     try:
-        quiz_questions = quiz_tools.read_questions()
+        quiz_questions = quiz_tools.read_questions(args.quiz_folder)
 
-        if args.tg_quiz:
+        if args.tg_quiz or all_quizzes:
             try:
                 launch_tg_bot(quiz_questions)
             except (
@@ -75,7 +76,7 @@ def main():
             ) as error:
                 logger.exception(f'Ошибка telegram бота: {error}')
 
-        if args.vk_quiz:
+        if args.vk_quiz or all_quizzes:
             try:
                 launch_vk_bot(quiz_questions)
             except (

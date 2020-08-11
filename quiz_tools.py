@@ -41,9 +41,9 @@ def get_quiz_lib(quiz_text):
     return quiz_lib
 
 
-def read_questions():
+def read_questions(quiz_folder):
     readed_questions = {}
-    for file in tqdm(glob('quiz-questions/*.txt'), desc="Прочитано", unit=" файлов с вопросами"):
+    for file in tqdm(glob(f'{quiz_folder}/*.txt'), desc="Прочитано", unit=" файлов с вопросами"):
         with open(file, 'r', encoding='KOI8-R') as file_handler:
             quiz_text = file_handler.read()
             readed_questions.update(get_quiz_lib(quiz_text))
