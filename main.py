@@ -1,5 +1,6 @@
 import os
 import logging
+import argparse
 import telegram
 import requests
 import quiz_tools
@@ -22,6 +23,15 @@ def initialize_logger(log_path=None):
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(description='Параметры запуска скрипта')
+    parser.add_argument('-t', '--tg_quiz', action='store_true', help='Викторина в telegram')
+    parser.add_argument('-v', '--vk_quiz', action='store_true', help='Викторина в ВКонтакте')
+    parser.add_argument('-l', '--log', help='Путь к каталогу с log файлом')
+
+    return parser
 
 
 def launch_tg_bot(quiz_questions):
@@ -49,26 +59,30 @@ def launch_vk_bot(quiz_questions):
 def main():
 
     load_dotenv()
-    initialize_logger()
+    parser = create_parser()
+    args = parser.parse_args()
+    initialize_logger(args.log)
 
     try:
         quiz_questions = quiz_tools.read_questions()
 
-        try:
-            launch_tg_bot(quiz_questions)
-        except (
-            telegram.TelegramError,
-            requests.exceptions.HTTPError
-        ) as error:
-            logger.exception(f'Ошибка telegram бота: {error}')
+        if args.tg_quiz:
+            try:
+                launch_tg_bot(quiz_questions)
+            except (
+                telegram.TelegramError,
+                requests.exceptions.HTTPError
+            ) as error:
+                logger.exception(f'Ошибка telegram бота: {error}')
 
-        try:
-            launch_vk_bot(quiz_questions)
-        except (
-            requests.exceptions.HTTPError,
-            VkApiError, ApiHttpError, AuthError
-        ) as error:
-            logger.exception(f'Ошибка vk бота: {error}')
+        if args.vk_quiz:
+            try:
+                launch_vk_bot(quiz_questions)
+            except (
+                requests.exceptions.HTTPError,
+                VkApiError, ApiHttpError, AuthError
+            ) as error:
+                logger.exception(f'Ошибка vk бота: {error}')
 
     except (
         KeyError, TypeError, ValueError, OSError

@@ -1,4 +1,5 @@
 import re
+from tqdm import tqdm
 from glob import glob
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
@@ -42,9 +43,8 @@ def get_quiz_lib(quiz_text):
 
 def read_questions():
     readed_questions = {}
-    for file in glob('quiz-questions/*.txt'):
+    for file in tqdm(glob('quiz-questions/*.txt'), desc="Прочитано", unit=" файлов с вопросами"):
         with open(file, 'r', encoding='KOI8-R') as file_handler:
             quiz_text = file_handler.read()
             readed_questions.update(get_quiz_lib(quiz_text))
-        break
     return readed_questions
