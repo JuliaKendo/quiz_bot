@@ -47,4 +47,5 @@ def read_questions():
         with open(file, 'r', encoding='KOI8-R') as file_handler:
             quiz_text = file_handler.read()
             readed_questions.update(get_quiz_lib(quiz_text))
+            break
     return readed_questions
