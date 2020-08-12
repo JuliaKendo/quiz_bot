@@ -25,17 +25,14 @@ def remove_waste_letters(text):
 
 
 def get_quiz_lib(quiz_text):
-    quiz_lib = {}
-    for quiz_question in re.split(r'Вопрос[\s][0-9]+\s?:\n', quiz_text):
-        regex_object = re.compile(r'''
-            ^(.*)(Ответ:)               #все символы с начала строки до слова "Ответ:"
-            (.*?[\.|\(])                #все символы до первой точки или открывающейся скобки
-        ''', re.DOTALL | re.VERBOSE)
-        question_and_answer = regex_object.findall(quiz_question)
-        if question_and_answer:
-            quiz_lib.update({remove_waste_letters(question[0]): remove_waste_letters(question[2]) for question in question_and_answer})
-
-    return quiz_lib
+    regex_object = re.compile(r'''
+        (Вопрос[\s][0-9]+\s?:\n+?)  #начало блока со слова "Вопрос" и до ":" с последующими переносами, если они есть
+        (.*?)(Ответ:)               #все символы до слова "Ответ:"
+        (.*?[\.|\(])                #все символы до первой точки или открывающейся скобки
+    ''', re.DOTALL | re.VERBOSE)
+    quiz_questions = regex_object.findall(quiz_text)
+    if quiz_questions:
+        return {remove_waste_letters(quiz_question[1]): remove_waste_letters(quiz_question[3]) for quiz_question in quiz_questions}
 
 
 def read_questions(quiz_folder):

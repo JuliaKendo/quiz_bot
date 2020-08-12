@@ -55,13 +55,13 @@ class TgQuizBot(object):
     def handle_new_question_request(self, bot, update):
         session_id = update.message.chat_id
         question = random.choice(list(self.quiz_questions.keys()))
-        self.redis_conn.set(session_id, question)
+        self.redis_conn.set(f'tg{session_id}', question)
         update.message.reply_text(question)
         return 'check_reply'
 
     def handle_solution_attempt(self, bot, update):
         session_id = update.message.chat_id
-        question = self.redis_conn.get(session_id)
+        question = self.redis_conn.get(f'tg{session_id}')
         correct_answer = get_answer(self.quiz_questions, question.decode())
         if update.message.text.upper() in correct_answer.upper():
             update.message.reply_text('Правильно! Поздравляю! Для следующего вопроса нажми "Новый вопрос"')
@@ -72,7 +72,7 @@ class TgQuizBot(object):
 
     def handle_correct_answer(self, bot, update):
         session_id = update.message.chat_id
-        question = self.redis_conn.get(session_id)
+        question = self.redis_conn.get(f'tg{session_id}')
         correct_answer = get_answer(self.quiz_questions, question.decode())
         update.message.reply_text(f'Вот тебе правильный ответ: {correct_answer}\nДля продолжения нажмите "Новый вопрос"')
         return 'new_question'

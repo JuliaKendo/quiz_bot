@@ -36,17 +36,17 @@ class VkQuizBot(object):
 
             if event.text == 'Новый вопрос':
                 question = random.choice(list(self.quiz_questions.keys()))
-                self.redis_conn.set(event.user_id, question)
+                self.redis_conn.set(f'vk{event.user_id}', question)
                 self.send_message(event.user_id, question)
 
             elif event.text == 'Сдаться':
-                question = self.redis_conn.get(event.user_id)
+                question = self.redis_conn.get(f'vk{event.user_id}')
                 correct_answer = get_answer(self.quiz_questions, question.decode())
                 message = f'Вот тебе правильный ответ: {correct_answer}\nДля продолжения нажмите "Новый вопрос"'
                 self.send_message(event.user_id, message)
 
             else:
-                question = self.redis_conn.get(event.user_id)
+                question = self.redis_conn.get(f'vk{event.user_id}')
                 correct_answer = get_answer(self.quiz_questions, question.decode())
                 if event.text.upper() in correct_answer.upper():
                     message = 'Правильно! Поздравляю! Для следующего вопроса нажми "Новый вопрос"'
