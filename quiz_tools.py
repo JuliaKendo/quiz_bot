@@ -9,7 +9,7 @@ def check_answer(answer, correct_answer):
     regex_object = re.compile(r'[\n+|\r|\(|\)|\.|\,|\:|\;|\"|\[|\]|\s]')
     answer_seq = [word for word in regex_object.split(answer.upper()) if len(word) > 2]
     correct_answer_seq = [word for word in regex_object.split(correct_answer.upper()) if len(word) > 2]
-    return len(answer_seq) == len(set(answer_seq) & set(correct_answer_seq))
+    return len(answer_seq) == len(set(answer_seq) & set(correct_answer_seq)) and len(answer_seq) > 0
 
 
 def get_vk_keyboard():
