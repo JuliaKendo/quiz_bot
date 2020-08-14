@@ -15,14 +15,15 @@ pip install -r requirements.txt
 
 Создайте базу данных на [Redislabs](https://redislabs.com)
 
-Для установки отредактируйте файл .env, в котором заполните следующие переменные окружения:
+Для установки создайте файл .env, в котором заполните следующие переменные окружения:
 - `TG_ACCESS_TOKEN` - Секретный ключ бота telegram для викторины.
 - `TG_LOG_TOKEN` - Секретный ключ бота для информации об ошибках.
 - `TG_CHAT_ID` - ID чата текущего пользователя telegram.
 - `VK_ACCESS_TOKEN` - Секретный токен для подключения к api сайта [vk.com](http://www.vk.com).
-- `REDIS_HOST` - Адрес базы данных [Redislabs](https://redislabs.com).
-- `REDIS_PORT` - Порт для подключения к базе данных [Redislabs](https://redislabs.com).
-- `REDIS_PASSWORD` - Пароль для подключения к базе данных [Redislabs](https://redislabs.com).
+- `VK_GROUP_ID` - Идентификатор группы ВКонтакте.
+- `REDIS_HOST` - Адрес базы данных redis.
+- `REDIS_PORT` - Порт для подключения к базе данных redis.
+- `REDIS_PASSWORD` - Пароль для подключения к базе данных redis.
 
 
 Запускают скрипт с одним обязательным параметром:

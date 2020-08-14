@@ -24,19 +24,33 @@ def create_parser():
 
 
 def launch_tg_bot(redis_conn):
-    tg_bot = TgQuizBot(
-        os.getenv('TG_ACCESS_TOKEN'),
-        redis_conn=redis_conn
-    )
-    tg_bot.start()
+    try:
+        tg_bot = TgQuizBot(
+            os.getenv('TG_ACCESS_TOKEN'),
+            redis_conn=redis_conn
+        )
+        tg_bot.start()
+    except (
+        telegram.TelegramError, requests.exceptions.HTTPError,
+        KeyError, TypeError, ValueError
+    ) as error:
+        logger.exception(f'Ошибка telegram бота: {error}')
 
 
 def launch_vk_bot(redis_conn):
-    vk_bot = VkQuizBot(
-        os.getenv('VK_ACCESS_TOKEN'),
-        redis_conn=redis_conn
-    )
-    vk_bot.start()
+    try:
+        vk_bot = VkQuizBot(
+            os.getenv('VK_ACCESS_TOKEN'),
+            os.getenv('VK_GROUP_ID'),
+            redis_conn=redis_conn
+        )
+        vk_bot.start()
+    except (
+        requests.exceptions.HTTPError, VkApiError, ApiHttpError, AuthError,
+        KeyError, TypeError, ValueError
+    ) as error:
+        logger.exception(f'Ошибка vk бота: {error}')
+        launch_vk_bot(redis_conn)
 
 
 def main():
@@ -58,32 +72,18 @@ def main():
         )
 
         if args.update_db:
-            quiz_tools.read_questions(args.quiz_folder, redis_conn)
+            quiz_tools.load_quiz_lib(args.quiz_folder, redis_conn)
 
         if args.quiz == 'tg':
             logger.info('telegram quiz bot launched')
-            try:
-                launch_tg_bot(redis_conn)
-            except (
-                telegram.TelegramError,
-                requests.exceptions.HTTPError
-            ) as error:
-                logger.exception(f'Ошибка telegram бота: {error}')
+            launch_tg_bot(redis_conn)
 
         if args.quiz == 'vk':
             logger.info('vk quiz bot launched')
-            try:
-                launch_vk_bot(redis_conn)
-            except (
-                requests.exceptions.HTTPError,
-                VkApiError, ApiHttpError, AuthError
-            ) as error:
-                logger.exception(f'Ошибка vk бота: {error}')
+            launch_vk_bot(redis_conn)
 
-    except (
-        KeyError, TypeError, ValueError, OSError
-    ) as error:
-        logger.exception(f'Ошибка бота: {error}')
+    except OSError as error:
+        logger.exception(f'Ошибка чтения вопросов и ответов викторины: {error}')
 
     except (
         redis.ConnectionError, redis.AuthenticationError, redis.RedisError

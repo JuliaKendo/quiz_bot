@@ -1,7 +1,8 @@
 import logging
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from quiz_tools import get_random_question, save_asked_question, get_answer
+from quiz_tools import check_answer
 from quiz_tools import save_scoring, get_scoring_string, delete_scoring
+from quiz_tools import get_random_question, save_asked_question, get_answer
 from telegram.ext import Filters, MessageHandler, CommandHandler, Updater, ConversationHandler
 
 logger = logging.getLogger('quize_bot')
@@ -61,7 +62,7 @@ class TgQuizBot(object):
     def handle_solution_attempt(self, bot, update):
         user_ident = f'user_tg_{update.message.chat_id}'
         correct_answer = get_answer(self.redis_conn, user_ident)
-        if update.message.text.upper() in correct_answer.upper():
+        if check_answer(update.message.text, correct_answer):
             save_scoring(self.redis_conn, user_ident, True)
             update.message.reply_text('Правильно! Поздравляю! Для следующего вопроса нажми "Новый вопрос"')
             return 'new_question'
